@@ -12,8 +12,18 @@ def init_db():
 
         cursor = conn.cursor()
 
-        create_table_cars = """
-        CREATE TABLE IF NOT EXISTS cars(
+        all_tables_queries = {create_table_users := """
+        CREATE TABLE IF NOT EXISTS users(
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(50) NOT NULL,
+            surname VARCHAR(50) NOT NULL,
+            nickname VARCHAR(50) NOT NULL,
+            email VARCHAR(50) NOT NULL
+        )
+        """,
+
+                              create_table_cars := """
+        CREATE TABLE IF NOT EXISTS cars( 
             id SERIAL PRIMARY KEY,
             type VARCHAR(50) NOT NULL,
             brand VARCHAR(50) NOT NULL,
@@ -22,12 +32,25 @@ def init_db():
             price INTEGER NOT NULL,
             color VARCHAR(20) NOT NULL
         )
+        """,
+                              create_table_orders := """
+        CREATE TABLE IF NOT EXISTS orders(
+            id SERIAL PRIMARY KEY,
+            user_id INT NOT NULL,
+            car_id INT NOT NULL,
+            order_date DATE NOT NULL,
+            status VARCHAR(50) NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE CASCADE
+        )                      
         """
-
+                              }
         try:
-            cursor.execute(create_table_cars)
+            for create_table in all_tables_queries:
+                cursor.execute(create_table)
+
             conn.commit()
-            logging.info("Table cars has been made successfully.")
+            logging.info("All tables has been made successfully.")
         except Exception as e:
-            print(f"Error creating table cars: {e}")
+            print(f"Error creating tables: {e}")
             conn.rollback()
