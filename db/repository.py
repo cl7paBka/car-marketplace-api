@@ -251,3 +251,18 @@ class UserRepository:
                 logging.info(f"Error while deleting user with id: {user_id} in cars: {e}")
                 conn.rollback()
                 return None
+
+
+class OrderRepository:
+    def create_order(self, user: UserCreate):
+        pass
+        # query = """
+        # INSERT INTO orders
+        # (user_id, car_id, order_date, status) VALUES (%s, %s, %s, %s)
+        # RETURNING id
+        # """
+        # with get_db() as conn:
+        #     cursor = conn.cursor()
+        #     try:
+        #         cursor.execute(query, )
+        #
