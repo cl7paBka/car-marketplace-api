@@ -18,7 +18,7 @@ async def get_all_cars(repo: CarRepository = Depends(get_car_repository())):
         # for car in all_cars:
         #     data[car.car_id] = car.dict()
         return {
-            "status": "success",
+            "status": "Success",
             "message": "All cars extracted successfully",
             "data": data
         }
@@ -56,7 +56,7 @@ async def add_car(car: CarCreate, repo: CarRepository = Depends(get_car_reposito
 async def update_car_by_id(car_id: int, car: CarInfo, repo: CarRepository = Depends(get_car_repository())):
     existing_car = repo.get_car_by_id(car_id)
     if not existing_car:
-        raise HTTPException(status_code=404, detail="Car not found")
+        raise HTTPException(status_code=404, detail=f"Car with id {car_id} not found")
     repo.update_car_by_id(car_id, car)
     return {
         "status": "Success",
@@ -69,7 +69,7 @@ async def update_car_by_id(car_id: int, car: CarInfo, repo: CarRepository = Depe
 async def delete_car_by_id(car_id: int, repo: CarRepository = Depends(get_car_repository())):
     existing_car = repo.get_car_by_id(car_id)
     if not existing_car:
-        raise HTTPException(status_code=404, detail="Car not found")
+        raise HTTPException(status_code=404, detail=f"Car with id {car_id} not found")
 
     deleted_car_id = repo.delete_car_by_id(car_id)
     if deleted_car_id is not None:
@@ -77,4 +77,4 @@ async def delete_car_by_id(car_id: int, repo: CarRepository = Depends(get_car_re
             "status": "success",
             "message": f"Car with id {deleted_car_id} has been deleted successfully"
         }
-    raise HTTPException(status_code=404, detail=f"Car has not been deleted with id {car_id}")
+    raise HTTPException(status_code=404, detail=f"Car with id {car_id} has not been deleted")
