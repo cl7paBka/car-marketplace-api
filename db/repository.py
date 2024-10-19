@@ -1,6 +1,7 @@
 from db.connection import get_db
 from schemas.car import CarCreate, CarInDB, CarInfo
 from schemas.user import UserCreate, UserInfo, UserInDB
+from schemas.order import OrderInfo, OrderCreate, OrderInDB
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -25,7 +26,7 @@ class CarRepository:
                 logging.info(f"The car with id {car_id} added to cars successfully")
                 return car_id
             except Exception as e:
-                logging.info(f"Error occured while creating car: {e}")
+                logging.info(f"Error occurred while creating car: {e}")
                 conn.rollback()
 
     def get_car_by_id(self, car_id: int):
@@ -66,7 +67,7 @@ class CarRepository:
                 conn.commit()
                 return car_id
             except Exception as e:
-                logging.info(f"Error while deleting car with id: {car_id} in cars: {e}")
+                logging.info(f"Error while deleting car with id {car_id} in cars: {e}")
                 conn.rollback()
                 return None
 
@@ -254,15 +255,113 @@ class UserRepository:
 
 
 class OrderRepository:
-    def create_order(self, user: UserCreate):
-        pass
-        # query = """
-        # INSERT INTO orders
-        # (user_id, car_id, order_date, status) VALUES (%s, %s, %s, %s)
-        # RETURNING id
-        # """
-        # with get_db() as conn:
-        #     cursor = conn.cursor()
-        #     try:
-        #         cursor.execute(query, )
-        #
+    def create_order(self, order: OrderCreate):
+        query = """
+        INSERT INTO orders
+        (user_id, car_id, order_date, status) VALUES (%s, %s, %s, %s)
+        RETURNING id
+        """
+        with get_db() as conn:
+            cursor = conn.cursor()
+            try:
+                cursor.execute(query, (order.user_id, order.car_id, order.order_date, order.status))
+                order_id = cursor.fetchone()[0]
+                conn.commit()
+                logging.info(f"The order with id {order_id} has been successfully created")
+                return order_id
+            except Exception as e:
+                logging.info(f"Error occurred while creating order: {e}")
+                conn.rollback()
+
+    def get_order_by_id(self, order_id: int):
+        query = """
+        SELECT *
+        FROM orders
+        WHERE id = %s
+        """
+        with get_db() as conn:
+            cursor = conn.cursor()
+            try:
+                cursor.execute(query, (order_id,))
+                row = cursor.fetchone()
+                if row:
+                    column_names = [desc[0] for desc in cursor.description]
+                    order_data = dict(zip(column_names, row))
+                    return OrderInDB(**order_data)
+                else:
+                    logging.info(f"Order with id {order_id} not found.")
+                    return None
+            except Exception as e:
+                logging.info(f"Error while seeking for order with id: {order_id}")
+
+    def get_all_orders(self):
+        query = """
+        SELECT id, user_id, car_id, order_date, status
+        FROM orders
+        """
+        with get_db() as conn:
+            cursor = conn.cursor()
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            all_orders = [
+                OrderInDB(
+                    id=row[0],
+                    user_id=row[1],
+                    car_id=row[2],
+                    order_date=row[3],
+                    status=row[4]
+                )
+                for row in rows
+            ]
+            return all_orders
+
+    def delete_order_by_id(self, order_id: int):
+        query = """
+        DELETE FROM orders
+        WHERE id = %s
+        """
+        with get_db() as conn:
+            cursor = conn.cursor()
+            try:
+                cursor.execute(query, (order_id, ))
+                conn.commit()
+                return order_id
+            except Exception as e:
+                logging.info(f"Error while deleting order with id {order_id} in orders: {e}")
+                conn.rollback()
+                return None
+
+    def update_order_by_id(self, order_id: int, order: OrderInfo):
+        query = """
+        UPDATE orders SET
+        """
+        fields_to_update = []
+        values = []
+
+        if order.user_id is not None:
+            fields_to_update.append("user_id = %s")
+            values.append(order.user_id)
+
+        if order.car_id is not None:
+            fields_to_update.append("car_id = %s")
+            values.append(order.car_id)
+
+        if order.order_date is not None:
+            fields_to_update.append("order_date = %s")
+            values.append(order.order_date)
+
+        if order.status is not None:
+            fields_to_update.append("status = %s")
+            values.append(order.status)
+
+        if not fields_to_update:
+            return
+
+        query += ", ".join(fields_to_update)
+        query += " WHERE id = %s"
+
+        values.append(order_id)
+        with get_db() as conn:
+            cursor = conn.cursor()
+            cursor.execute(query, values)
+            conn.commit()
