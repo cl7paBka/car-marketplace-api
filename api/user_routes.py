@@ -50,10 +50,10 @@ async def create_user(user: UserCreate, repo: UserRepository = Depends(get_user_
 
 
 @users_api_router.put("/users/update/{user_id}")
-async def update_user(user_id: int, user: UserInfo, repo: UserRepository = Depends(get_user_repository())):
+async def update_user_by_id(user_id: int, user: UserInfo, repo: UserRepository = Depends(get_user_repository())):
     existing_user = repo.get_user_by_id(user_id)
     if not existing_user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail=f"User with id {user_id} not found")
     repo.update_user_by_id(user_id, user)
     return {
         "status": "Success",
@@ -64,10 +64,14 @@ async def update_user(user_id: int, user: UserInfo, repo: UserRepository = Depen
 
 @users_api_router.delete("/users/delete/{user_id}")
 async def delete_user_by_id(user_id: int, repo: UserRepository = Depends(get_user_repository())):
+    existing_user = repo.get_user_by_id(user_id)
+    if not existing_user:
+        raise HTTPException(status_code=404, detail=f"User with id {user_id} not found")
+
     deleted_user_id = repo.delete_user_by_id(user_id)
     if deleted_user_id is not None:
         return {
             "status": "success",
             "message": f"User with id {deleted_user_id} has been deleted successfully"
         }
-    raise HTTPException(status_code=404, detail=f"User has not been deleted with id {user_id}")
+    raise HTTPException(status_code=404, detail=f"User with id {user_id} has not been deleted")
