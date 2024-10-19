@@ -1,18 +1,25 @@
 import asyncio
 import uvicorn
 from fastapi import FastAPI
-from api.car_routes import cars_api_router
 from db.initialize import init_db
 from db.repository import CarRepository
 from api import routers
 
+# Create a FastAPI instance
 app = FastAPI()
 
+# Include all routers from the API package
 for router in routers:
     app.include_router(router)
 
 
 async def main():
+    """
+    Initialize the database and start the FastAPI application.
+
+    This function sets up the database and starts the server using Uvicorn.
+    It is called when the script is run as the main module.
+    """
     init_db()
 
     repo = CarRepository()
@@ -21,4 +28,5 @@ async def main():
 
 
 if __name__ == "__main__":
+    # Run the main function asynchronously
     asyncio.run(main())

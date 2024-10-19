@@ -4,6 +4,11 @@ from datetime import date
 
 
 class OrderCreate(BaseModel):
+    """
+    Schema for creating a new order.
+
+    All fields are required for the creation of a valid order object.
+    """
     user_id: int
     car_id: int
     order_date: date
@@ -11,6 +16,11 @@ class OrderCreate(BaseModel):
 
 
 class OrderInfo(BaseModel):
+    """
+    Schema for updating or displaying order information.
+
+    All fields are optional for flexible updates or display.
+    """
     user_id: Optional[int] = None
     car_id: Optional[int] = None
     order_date: Optional[date] = None
@@ -18,4 +28,9 @@ class OrderInfo(BaseModel):
 
 
 class OrderInDB(OrderInfo):
+    """
+    Schema representing an order stored in the database.
+
+    Includes a unique identifier for each order.
+    """
     id: int

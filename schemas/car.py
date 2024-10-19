@@ -3,6 +3,11 @@ from typing import Optional
 
 
 class CarCreate(BaseModel):
+    """
+    Schema for creating a new car entry.
+
+    All fields are required to ensure the creation of a valid car object.
+    """
     price: int
     color: str
     year: int
@@ -12,6 +17,11 @@ class CarCreate(BaseModel):
 
 
 class CarInfo(BaseModel):
+    """
+    Schema for updating or displaying car information.
+
+    All fields are optional to allow partial updates or selective display of data.
+    """
     price: Optional[int] = None
     color: Optional[str] = None
     year: Optional[int] = None
@@ -21,5 +31,9 @@ class CarInfo(BaseModel):
 
 
 class CarInDB(CarInfo):
-    car_id: int
+    """
+    Schema for representing a car as stored in the database.
 
+    Includes a unique identifier for each car.
+    """
+    car_id: int
