@@ -1,7 +1,7 @@
-from db.connection import get_db
-from schemas.car import CarCreate, CarInDB, CarInfo
-from schemas.user import UserCreate, UserInDB, UserInfo
-from schemas.order import OrderCreate, OrderInDB, OrderInfo
+from src.db.connection import get_db
+from src.schemas.car import CarCreate, CarInDB, CarInfo
+from src.schemas.user import UserCreate, UserInDB, UserInfo
+from src.schemas.order import OrderCreate, OrderInDB, OrderInfo
 import logging
 from typing import List, Optional
 

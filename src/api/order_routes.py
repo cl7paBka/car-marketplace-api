@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
-from db.repository import OrderRepository
-from schemas.order import OrderCreate, OrderInfo, OrderInDB
+from src.db.repository import OrderRepository
+from src.schemas.order import OrderCreate, OrderInfo, OrderInDB
 from typing import Dict
 
 orders_api_router = APIRouter()

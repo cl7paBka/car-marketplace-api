@@ -1,5 +1,4 @@
-import psycopg2
-from db.connection import get_db
+from src.db.connection import get_db
 import logging
 
 # Configure logging

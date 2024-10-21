@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
-from db.repository import CarRepository
-from schemas.car import CarCreate, CarInfo, CarInDB
+from src.db.repository import CarRepository
+from src.schemas.car import CarCreate, CarInfo, CarInDB
 from typing import Dict
 
 cars_api_router = APIRouter()

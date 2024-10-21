@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
-from db.repository import UserRepository
-from schemas.user import UserCreate, UserInfo, UserInDB
+from src.db.repository import UserRepository
+from src.schemas.user import UserCreate, UserInfo, UserInDB
 from typing import Dict
 
 users_api_router = APIRouter()

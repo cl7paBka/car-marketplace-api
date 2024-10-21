@@ -1,9 +1,9 @@
 import asyncio
 import uvicorn
 from fastapi import FastAPI
-from db.initialize import init_db
-from db.repository import CarRepository
-from api import routers
+from src.db.initialize import init_db
+from src.db.repository import CarRepository
+from src.api import routers
 
 # Create a FastAPI instance
 app = FastAPI()
