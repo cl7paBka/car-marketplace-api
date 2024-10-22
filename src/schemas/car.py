@@ -1,5 +1,7 @@
+from datetime import datetime
 from pydantic import BaseModel
 from typing import Optional
+from src.db.models import EngineType, TransmissionType
 
 
 class CarCreate(BaseModel):
@@ -9,11 +11,14 @@ class CarCreate(BaseModel):
     All fields are required to ensure the creation of a valid car object.
     """
     price: int
-    color: str
-    year: int
-    type: str
-    model: str
     brand: str
+    model: str
+    year: int
+    color: str
+    mileage: int
+    transmission: TransmissionType
+    engine: EngineType
+    vin_number: str
 
 
 class CarInfo(BaseModel):
@@ -23,17 +28,35 @@ class CarInfo(BaseModel):
     All fields are optional to allow partial updates or selective display of data.
     """
     price: Optional[int] = None
-    color: Optional[str] = None
+    brand: Optional[int] = None
+    model: Optional[int] = None
     year: Optional[int] = None
-    type: Optional[str] = None
-    model: Optional[str] = None
-    brand: Optional[str] = None
+    color: Optional[int] = None
+    mileage: Optional[int] = None
+    transmission: Optional[TransmissionType] = None
+    engine: Optional[EngineType] = None
+    vin_number: Optional[str] = None
 
 
-class CarInDB(CarInfo):
+class CarInDB(BaseModel):
     """
     Schema for representing a car as stored in the database.
 
     Includes a unique identifier for each car.
     """
-    car_id: int
+    id: int
+    price: int
+    brand: str
+    model: str
+    year: int
+    color: str
+    mileage: int
+    transmission: TransmissionType
+    engine: EngineType
+    price: int
+    vin_number: str
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
