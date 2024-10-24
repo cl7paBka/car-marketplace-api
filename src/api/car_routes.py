@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from src.schemas.car import CarCreate, CarInfo, CarInDB
 from src.db import get_db
 from src.db.models import TransmissionType, EngineType
-from src.db.repository.car_repository import CarRepository
+from src.db.repositories.car_repository import CarRepository
 from typing import Optional, Dict
 
 cars_api_router = APIRouter(prefix="/cars")
@@ -79,7 +79,7 @@ async def get_car_by_vin_number(vin_number: str, car_repo: CarRepository = Depen
 @cars_api_router.get("/", response_model=Dict)
 async def get_all_cars(car_repo: CarRepository = Depends(get_car_repository)):
     """
-    Retrieve all cars from the repository.
+    Retrieve all cars from the repositories.
 
     Returns a success message with the car data if found, otherwise raises a 404 error.
     """

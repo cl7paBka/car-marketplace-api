@@ -4,9 +4,6 @@ from fastapi import FastAPI
 from src.api import routers
 from src.db import models, engine
 
-from src.api.user_routes import users_api_router
-# from src.api import routers
-
 # Create a FastAPI instance
 app = FastAPI()
 

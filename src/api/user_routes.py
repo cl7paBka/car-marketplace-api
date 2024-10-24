@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from src.schemas.user import UserCreate, UserInfo, UserInDB
 from src.db import get_db
 from src.db.models import Role
-from src.db.repository.user_repository import UserRepository
+from src.db.repositories.user_repository import UserRepository
 from typing import Optional, Dict
 
 users_api_router = APIRouter(prefix="/users")
