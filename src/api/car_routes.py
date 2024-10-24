@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from src.schemas.car import CarCreate, CarInfo, CarInDB
+from src.schemas.car import CarCreate, CarInfo
 from src.db import get_db
 from src.db.models import TransmissionType, EngineType
 from src.db.repositories.car_repository import CarRepository
