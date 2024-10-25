@@ -75,11 +75,10 @@ class UserRepository:
         Returns a list of UserInDB schemas.
         """
         db_users = self.db.query(User).all()
-        result = [UserInDB.from_orm(user) for user in db_users]
-        print(result)
-        if len(result) == 0:
+        all_orders = [UserInDB.from_orm(user) for user in db_users]
+        if len(all_orders) == 0:
             return None
-        return result
+        return all_orders
 
     def delete_user_by_id(self, user_id: int) -> Optional[int]:
         """
