@@ -116,7 +116,9 @@ async def get_users_by_role(user_role: Role, user_repo: UserRepository = Depends
 async def update_user(user_id: int, user_data: UserInfo,
                       user_repo: UserRepository = Depends(get_user_repository)) -> Dict:
     """
-    Update user information by their ID. If the user is not found, return 404.
+    Update user information by their ID.
+
+    If the user is not found, return 404.
     """
     await check_for_user_existence(user_id, user_repo)
 
