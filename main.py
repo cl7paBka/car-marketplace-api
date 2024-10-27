@@ -1,9 +1,8 @@
 import asyncio
 import uvicorn
 from fastapi import FastAPI
-from db.initialize import init_db
-from db.repository import CarRepository
-from api import routers
+from src.api import routers
+from src.db import models, engine
 
 # Create a FastAPI instance
 app = FastAPI()
@@ -20,11 +19,8 @@ async def main():
     This function sets up the database and starts the server using Uvicorn.
     It is called when the script is run as the main module.
     """
-    init_db()
-
-    repo = CarRepository()
-
-    uvicorn.run('main:app', host='127.0.0.1', port=8000, reload=True)
+    models.Base.metadata.create_all(bind=engine)
+    uvicorn.run('main:app', host='0.0.0.0', port=8000, reload=True)
 
 
 if __name__ == "__main__":
