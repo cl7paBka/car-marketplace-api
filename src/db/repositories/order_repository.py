@@ -33,14 +33,26 @@ class OrderRepository:
         except NoResultFound:
             return None
 
-    def get_orders_by_car_id(self):
-        pass
+    def get_orders_by_car_id(self, car_id: int) -> Optional[List[OrderInDB]]:
+        db_orders = self.db.query(Order).filter(Order.car_id == car_id).all()
+        all_orders = [OrderInDB.from_orm(order) for order in db_orders]
+        if not all_orders:  # Return None if all_orders is empty
+            return None
+        return all_orders
 
-    def get_orders_by_user_id(self):
-        pass
+    def get_orders_by_user_id(self, user_id: int) -> Optional[List[OrderInDB]]:
+        db_orders = self.db.query(Order).filter(Order.user_id == user_id).all()
+        all_orders = [OrderInDB.from_orm(order) for order in db_orders]
+        if not all_orders:  # Return None if all_orders is empty
+            return None
+        return all_orders
 
-    def get_orders_by_salesperson_id(self):
-        pass
+    def get_orders_by_salesperson_id(self, salesperson_id: int) -> Optional[List[OrderInDB]]:
+        db_orders = self.db.query(Order).filter(Order.salesperson_id == salesperson_id).all()
+        all_orders = [OrderInDB.from_orm(order) for order in db_orders]
+        if not all_orders:  # Return None if all_orders is empty
+            return None
+        return all_orders
 
     def get_all_orders(self) -> Optional[List[OrderInDB]]:
         db_orders = self.db.query(Order)
@@ -58,8 +70,7 @@ class OrderRepository:
         return None
 
     def update_order_by_id(self, order_id: int, order_data: OrderInfo) -> Optional[OrderInDB]:
-        # TODO: Add raise errors in update_order_by_id end-point if salesperson_id == user_id or salesperson_id refers not to manager
-        db_order = self.db.query(Order).filter(Order.id == order_id)
+        db_order = self.db.query(Order).filter(Order.id == order_id).first()
 
         if not db_order:
             return None
