@@ -7,7 +7,7 @@ from typing import Optional, List
 
 class CarRepository:
     """
-        Repository for managing car-related database operations.
+    Repository for managing car-related database operations.
     """
 
     def __init__(self, db: Session):
