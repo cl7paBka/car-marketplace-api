@@ -7,7 +7,7 @@ from typing import Optional, List
 
 class OrderRepository:
     """
-    Repository for managing user-related database operations.
+    Repository for managing order-related database operations.
     """
 
     def __init__(self, db: Session):
