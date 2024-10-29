@@ -29,6 +29,9 @@ class OrderInfo(BaseModel):
     salesperson_id: Optional[int] = None
     comments: Optional[str] = None
 
+    class Config:
+        from_attributes = True
+
 
 class OrderInDB(BaseModel):
     id: int

@@ -20,8 +20,11 @@ async def main():
     It is called when the script is run as the main module.
     """
     models.Base.metadata.create_all(bind=engine)
+    # For docker
     uvicorn.run('main:app', host='0.0.0.0', port=8000, reload=True)
 
+    # For tests without docker and docker-compose
+    # uvicorn.run('main:app', host='localhost', port=8000, reload=True)
 
 if __name__ == "__main__":
     # Run the main function asynchronously
