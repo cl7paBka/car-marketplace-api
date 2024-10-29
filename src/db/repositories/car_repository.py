@@ -66,34 +66,34 @@ class CarRepository:
         Returns a list of UserInDB schemas.
         """
         db_cars = self.db.query(Car).all()
-        result = [CarInDB.from_orm(car) for car in db_cars]
-        if len(result) == 0:
+        all_cars = [CarInDB.from_orm(car) for car in db_cars]
+        if not all_cars:  # Return None if all_cars is empty
             return None
-        return result
+        return all_cars
 
-    def get_cars_by_engine(self, car_engine: EngineType) -> List[CarInDB]:
+    def get_cars_by_engine(self, car_engine: EngineType) -> Optional[List[CarInDB]]:
         """
         Retrieve all cars from the database with a specific engine type (gasoline, electric, diesel).
 
         Returns a list of UserInDB schemas.
         """
         db_cars = self.db.query(Car).filter(Car.engine == car_engine).all()
-        result = [CarInDB.from_orm(car) for car in db_cars]
-        if len(result) == 0:
+        all_cars = [CarInDB.from_orm(car) for car in db_cars]
+        if not all_cars:  # Return None if all_cars is empty
             return None
-        return result
+        return all_cars
 
-    def get_cars_by_transmission(self, car_transmission: TransmissionType) -> List[CarInDB]:
+    def get_cars_by_transmission(self, car_transmission: TransmissionType) -> Optional[List[CarInDB]]:
         """
         Retrieve all cars from the database with a specific transmission type (manual, automatic).
 
         Returns a list of UserInDB schemas.
         """
         db_cars = self.db.query(Car).filter(Car.transmission == car_transmission).all()
-        result = [CarInDB.from_orm(car) for car in db_cars]
-        if len(result) == 0:
+        all_cars = [CarInDB.from_orm(car) for car in db_cars]
+        if not all_cars:  # Return None if all_cars is empty
             return None
-        return result
+        return all_cars
 
     def delete_car_by_id(self, car_id: int) -> Optional[int]:
         """
