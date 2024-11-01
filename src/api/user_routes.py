@@ -14,8 +14,6 @@ def get_user_repository(db: Session = Depends(get_db)) -> UserRepository:
     return UserRepository(db)
 
 
-# TODO: Make universal check for existance func, for every type of entities like user, car or order
-
 async def check_for_user_existence(user_id: int, user_repo: UserRepository):
     existing_user = user_repo.get_user_by_id(user_id)
     if existing_user is None:
@@ -129,6 +127,8 @@ async def update_user(user_id: int, user_data: UserInfo,
             "message": f"User with ID {user_id} updated successfully.",
             "data": updated_user.dict()
         }
+    raise HTTPException(status_code=400, detail=f"User with ID {user_id} could not be updated")
+
 
 
 @users_api_router.delete("/delete/{user_id}", response_model=Optional[Dict])
