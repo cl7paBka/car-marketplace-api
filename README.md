@@ -137,11 +137,6 @@ To explore the interactive API documentation powered by FastAPI’s automatic Sw
 
 ---
 
-6. **TODO:**
-   
-Change architecture to Onion (layered) architecture!
-
----
 
 ✨ Thank you for checking out **car-marketplace-api**! ✨
 
