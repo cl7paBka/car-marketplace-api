@@ -1,4 +1,4 @@
-# 🚗 API маркетплейса автомобилей
+# 🚗 API автомобильного маркетплейса
 
 <a href="https://github.com/cl7paBka/car-marketplace-api/blob/test/README.md"><img alt="README in English" src="https://img.shields.io/badge/English-purple"></a>
 <a href="https://github.com/cl7paBka/car-marketplace-api/blob/test/readme_assets/README_ru.md"><img alt="README in English" src="https://img.shields.io/badge/Русский-purple"></a>
