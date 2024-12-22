@@ -1,31 +1,29 @@
 import asyncio
 import uvicorn
+import logging
 from fastapi import FastAPI
-from src.api import routers
-from src.db import models, engine
 
-# Create a FastAPI instance
-app = FastAPI()
+from src.db.db import init_db
+from src.api.routers import all_routers
 
-# Include all routers from the API package
-for router in routers:
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
+
+app = FastAPI(
+    title="Car Marketplace API"
+
+)
+
+for router in all_routers:
     app.include_router(router)
 
 
 async def main():
-    """
-    Initialize the database and start the FastAPI application.
+    logging.info("Starting init_db()")
+    await init_db()
 
-    This function sets up the database and starts the server using Uvicorn.
-    It is called when the script is run as the main module.
-    """
-    models.Base.metadata.create_all(bind=engine)
-    # For docker
-    uvicorn.run('main:app', host='0.0.0.0', port=8000, reload=True)
+    logging.info("Starting FastAPI app")
+    uvicorn.run("main:app", host="localhost", port=8000, reload=True)
 
-    # For tests without docker and docker-compose
-    # uvicorn.run('main:app', host='localhost', port=8000, reload=True)
 
 if __name__ == "__main__":
-    # Run the main function asynchronously
     asyncio.run(main())
