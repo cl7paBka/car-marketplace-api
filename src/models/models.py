@@ -24,7 +24,7 @@ class Orders(Base):
                                                  nullable=False)
     status: Mapped[OrderStatus] = mapped_column(SAEnum(OrderStatus), nullable=False,
                                                 server_default=OrderStatus.pending.value)
-    comments: Mapped[str] = mapped_column(String(255), nullable=True)
+    comments: Mapped[str] = mapped_column(String(255), nullable=False)
 
     # Foreign Keys
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
