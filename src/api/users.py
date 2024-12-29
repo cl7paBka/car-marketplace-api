@@ -1,14 +1,9 @@
-from fastapi import APIRouter, Depends, Query
-from typing import Annotated
-from src.schemas.users import (
-    UserCreateSchema,
-    UserUpdateSchema,
-    UserCreateResponse,
-    UserGetOneResponse,
-    UserGetManyResponse,
-    UserUpdateResponse,
-    UserDeleteResponse
-)
+from typing import Annotated, List
+
+from fastapi import APIRouter, Depends
+from pydantic import EmailStr
+
+from src.api.dependencies import users_service
 from src.api.responses.users_responses import (
     create_user_responses,
     get_user_by_id_responses,
@@ -16,11 +11,18 @@ from src.api.responses.users_responses import (
     get_users_by_role_responses,
     get_all_users_responses,
     update_user_responses,
-    delete_user_responses
+    delete_user_responses,
+)
+from src.schemas.users import (
+    UserCreateSchema,
+    UserUpdateSchema,
+    UserSchema
+)
+from src.schemas.base_response import (
+    BaseResponse,
+    BaseStatusMessageResponse
 )
 from src.services.users import UsersService
-from src.api.dependencies import users_service
-from pydantic import EmailStr
 from src.utils.enums import Role
 
 router = APIRouter(
@@ -33,7 +35,7 @@ router = APIRouter(
 
 @router.post(
     path="/create",
-    response_model=UserCreateResponse,
+    response_model=BaseResponse[UserSchema],
     summary="Create a new user",
     description="""
     Create a new user with the provided data.
@@ -52,7 +54,7 @@ async def create_user(
 
 @router.get(
     path="/{user_id}",
-    response_model=UserGetOneResponse,
+    response_model=BaseResponse[UserSchema],
     summary="Get user by ID",
     description="""
     Retrieve detailed information about a specific user by their unique ID.
@@ -71,7 +73,7 @@ async def get_user_by_id(
 
 @router.get(
     path="/email/{user_email}",
-    response_model=UserGetOneResponse,
+    response_model=BaseResponse[UserSchema],
     summary="Get user by email",
     description="""
     Retrieve a user by their email address.
@@ -91,7 +93,7 @@ async def get_user_by_email(
 
 @router.get(
     path="/role/{role}",
-    response_model=UserGetManyResponse,
+    response_model=BaseResponse[List[UserSchema]],
     summary="Get users by role",
     description="""
     Retrieve a list of users filtered by their role.
@@ -110,7 +112,7 @@ async def get_users_by_role(
 
 @router.get(
     path="/",
-    response_model=UserGetManyResponse,
+    response_model=BaseResponse[List[UserSchema]],
     summary="Get all users",
     description="""
     Retrieve a complete list of all users in the system.
@@ -128,7 +130,7 @@ async def get_all_users(
 
 @router.patch(
     path="/patch/{user_id}",
-    response_model=UserUpdateResponse,
+    response_model=BaseResponse[UserSchema],
     summary="Update user details",
     description="""
     Update the details of a specific user by their unique ID.
@@ -150,7 +152,7 @@ async def update_user_by_user_id(
 
 @router.delete(
     path="/delete/{user_id}",
-    response_model=UserDeleteResponse,
+    response_model=BaseStatusMessageResponse,
     summary="Delete a user",
     description="""
     Delete a specific user by their unique ID.
