@@ -1,29 +1,45 @@
-from src.utils.repository import AbstractRepository
+from typing import Any, Dict, List
+
+from sqlalchemy.exc import NoResultFound
+
+from src.schemas.base_response import (
+    BaseResponse,
+    BaseStatusMessageResponse
+)
 from src.schemas.users import (
     UserCreateSchema,
-    UserUpdateSchema,
-    UserCreateResponse,
-    UserGetOneResponse,
-    UserGetManyResponse,
-    UserUpdateResponse,
-    UserDeleteResponse
+    UserSchema,
+    UserUpdateSchema
 )
-from typing import Dict, Any
 from src.utils.enums import Role
 from src.utils.exception_handler import (
     handle_exception,
     handle_exception_default_500
 )
+from src.utils.repository import AbstractRepository
 
-from sqlalchemy.exc import NoResultFound
 
-
-# TODO notation and repr
+# TODO: Simplify by reducing nesting.
+#  Use helper methods like `check_user_exists_by_id` and `check_email_uniqueness`.
 class UsersService:
+    """
+    Service layer for managing users.
+
+    This class provides methods to handle user-related operations, such as
+    creating, retrieving, updating, and deleting users. It acts as a bridge
+    between the repository layer and the application layer.
+    """
+
     def __init__(self, users_repo: AbstractRepository):
+        """
+        Initialize the UsersService with a user repository.
+        """
         self.users_repo = users_repo
 
-    async def create(self, user: UserCreateSchema) -> UserCreateResponse:
+    async def create(self, user: UserCreateSchema) -> BaseResponse[UserSchema]:
+        """
+        Create a new user after verifying that the email is unique.
+        """
         # Check if user exists
         try:
             existing_user = await self.users_repo.get_one(email=user.email)
@@ -40,7 +56,7 @@ class UsersService:
         try:
             users_dict = user.model_dump()
             created_user = await self.users_repo.create_one(users_dict)
-            return UserCreateResponse(
+            return BaseResponse[UserSchema](
                 status="success",
                 message="User created.",
                 data=created_user
@@ -49,11 +65,14 @@ class UsersService:
         except Exception as e:
             handle_exception_default_500(e)
 
-    async def get_one_by_filter(self, **filter_by: Dict[str, Any]) -> UserGetOneResponse:
+    async def get_one_by_filter(self, **filter_by: Dict[str, Any]) -> BaseResponse[UserSchema]:
+        """
+        Retrieve a single user based on the given filter criteria.
+        """
         try:
             user = await self.users_repo.get_one(**filter_by)
             if user:  # Is not None
-                return UserGetOneResponse(
+                return BaseResponse[UserSchema](
                     status="success",
                     message="User found.",
                     data=user
@@ -65,39 +84,46 @@ class UsersService:
         # If user not found
         handle_exception(status_code=404, custom_message="User not found.")
 
-    async def get_many_by_role(self, role: Role) -> UserGetManyResponse:
+    async def get_many_by_role(self, role: Role) -> BaseResponse[List[UserSchema]]:
+        """
+        Retrieve all users with the specified role.
+        """
         try:
             all_users = await self.users_repo.get_all()
             users_by_role = [user for user in all_users if user.role == role]
             if users_by_role:  # If there are users with this role in db return users_by_role
-                return UserGetManyResponse(
+                return BaseResponse[List[UserSchema]](
                     status="success",
-                    message=f"Users with role: '{role.value}' found",
+                    message=f"Users with role: '{role.value}' found.",
                     data=users_by_role
                 )
 
-            return UserGetManyResponse(  # If there are no users with this role in db returns empty users_by_role
+            return BaseResponse[List[UserSchema]](
+                # If there are no users with this role in db returns empty users_by_role
                 status="error",
-                message=f"Users with role: '{role.value}' not found",
+                message=f"Users with role: '{role.value}' not found.",
                 data=users_by_role
             )
         except Exception as e:
             # Catch unexpected error
             handle_exception_default_500(e)
 
-    async def get_all(self) -> UserGetManyResponse:
+    async def get_all(self) -> BaseResponse[List[UserSchema]]:
+        """
+        Retrieve all users in the system.
+        """
         try:
             all_users = await self.users_repo.get_all()
             if all_users:  # If there are users return them
-                return UserGetManyResponse(
+                return BaseResponse[List[UserSchema]](
                     status="success",
-                    message=f"All users found",
+                    message=f"All users found.",
                     data=all_users
                 )
 
-            return UserGetManyResponse(  # If there are no users return empty all_users
+            return BaseResponse[List[UserSchema]](  # If there are no users return empty all_users
                 status="error",
-                message=f"No users found",
+                message=f"No users found.",
                 data=all_users
             )
 
@@ -105,7 +131,10 @@ class UsersService:
             # Catch unexpected error
             handle_exception_default_500(e)
 
-    async def update_by_id(self, user_id: int, user: UserUpdateSchema) -> UserUpdateResponse:
+    async def update_by_id(self, user_id: int, user: UserUpdateSchema) -> BaseResponse[UserSchema]:
+        """
+        Update the details of a user by their ID, ensuring email uniqueness if updated.
+        """
         # Check if user with this id exists
         try:
             existing_user_by_id = await self.users_repo.get_one(id=user_id)
@@ -135,7 +164,7 @@ class UsersService:
         try:
             users_dict = user.model_dump()
             updated_user = await self.users_repo.edit_one(user_id, users_dict)
-            return UserUpdateResponse(
+            return BaseResponse[UserSchema](
                 status="success",
                 message="User updated.",
                 data=updated_user
@@ -144,14 +173,17 @@ class UsersService:
         except Exception as e:
             handle_exception_default_500(e)
 
-    async def delete_by_id(self, user_id: int) -> UserDeleteResponse:
+    async def delete_by_id(self, user_id: int) -> BaseStatusMessageResponse:
+        """
+        Delete a user by their ID.
+        """
         try:
             await self.users_repo.delete_one(user_id)
-            return UserDeleteResponse(
+            return BaseStatusMessageResponse(
                 status="success",
                 message=f"User with id {user_id} deleted."
             )
-        except NoResultFound:  # Catches if there is no
+        except NoResultFound:  # Catches if there is no user with this id
             handle_exception(
                 status_code=404,
                 custom_message=f"No user with id: '{user_id}' found."
