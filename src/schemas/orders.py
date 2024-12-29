@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from src.utils.enums import OrderStatus
 
 
-class OrderCreate(BaseModel):
+class OrderCreateSchema(BaseModel):
     user_id: int
     car_id: int
     salesperson_id: int
@@ -13,7 +13,7 @@ class OrderCreate(BaseModel):
     comments: Optional[str] = None
 
 
-class OrderUpdate(BaseModel):
+class OrderUpdateSchema(BaseModel):
     user_id: Optional[int] = None
     car_id: Optional[int] = None
     salesperson_id: Optional[int] = None

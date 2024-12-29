@@ -1,17 +1,19 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, EmailStr
 from src.utils.enums import Role
+from src.schemas.base_response import BaseResponse, BaseStatusMessageResponse
 
 
-class UserCreate(BaseModel):
+# Input schemas
+class UserCreateSchema(BaseModel):
     name: str
     surname: str
     email: EmailStr
     role: Role
 
 
-class UserUpdate(BaseModel):
+class UserUpdateSchema(BaseModel):
     name: Optional[str] = None
     surname: Optional[str] = None
     email: Optional[EmailStr] = None
@@ -29,3 +31,26 @@ class UserSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# Output schemas
+
+
+class UserCreateResponse(BaseResponse[UserSchema]):
+    pass
+
+
+class UserGetOneResponse(BaseResponse[UserSchema]):
+    pass
+
+
+class UserGetManyResponse(BaseResponse[List[UserSchema]]):
+    pass
+
+
+class UserUpdateResponse(BaseResponse[UserSchema]):
+    pass
+
+
+class UserDeleteResponse(BaseStatusMessageResponse):
+    pass

@@ -5,7 +5,8 @@ from pydantic import BaseModel
 from src.utils.enums import TransmissionType, EngineType
 
 
-class CarCreate(BaseModel):
+# Input schemas
+class CarCreateSchema(BaseModel):
     brand: str
     model: str
     price: int
@@ -17,7 +18,7 @@ class CarCreate(BaseModel):
     vin_number: str
 
 
-class CarUpdate(BaseModel):
+class CarUpdateSchema(BaseModel):
     brand: Optional[str] = None
     model: Optional[str] = None
     price: Optional[int] = None
@@ -45,3 +46,5 @@ class CarSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+# Output Schemas
