@@ -8,8 +8,8 @@ class AbstractRepository(ABC):
     """Abstract base class defining the contract for repositories."""
 
     @abstractmethod
-    async def create_one(self, data: dict) -> int:
-        """Creates a new record and returns its ID."""
+    async def create_one(self, data: dict):
+        """Creates a new record and returns it."""
         raise NotImplementedError
 
     @abstractmethod
@@ -18,8 +18,8 @@ class AbstractRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def edit_one(self, id: int, data: dict) -> int:
-        """Edits a record by ID and returns its ID."""
+    async def edit_one(self, id: int, data: dict):
+        """Edits a record by ID and returns it."""
         raise NotImplementedError
 
     @abstractmethod
@@ -39,13 +39,18 @@ class SQLAlchemyRepository(AbstractRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create_one(self, data: dict) -> int:
-        statement = insert(self.model).values(**data).returning(self.model.id)
+    async def create_one(self, data: dict):
+        statement = insert(self.model).values(**data).returning(self.model)
         result = await self.session.execute(statement)
         await self.session.commit()
-        return result.scalar_one()
+
+        created_entity = result.scalars().first()
+        entity = created_entity.to_read_model()
+        return entity
 
     async def get_one(self, **filter_by):
+        # Filter by is used for different get functions in services, for example: get by transmission, get by year in
+        # src/services/cars.py
         statement = select(self.model).filter_by(**filter_by)
         result = await self.session.execute(statement)
         instance = result.scalar_one_or_none()
@@ -53,11 +58,17 @@ class SQLAlchemyRepository(AbstractRepository):
             return None  # Return None if no record is found
         return instance.to_read_model()
 
-    async def edit_one(self, id: int, data: dict) -> int:
-        statement = update(self.model).values(**data).filter_by(id=id).returning(self.model.id)
+    async def edit_one(self, id: int, data: dict):
+        # Filter data to exclude None values, because all attributes in db are not nullable
+        filtered_data = {key: value for key, value in data.items() if value is not None}
+
+        statement = update(self.model).values(**filtered_data).filter_by(id=id).returning(self.model)
         result = await self.session.execute(statement)
         await self.session.commit()
-        return result.scalar_one()
+
+        updated_entity = result.scalars().first()
+        entity = updated_entity.to_read_model()
+        return entity
 
     async def get_all(self):
         statement = select(self.model)
