@@ -10,7 +10,7 @@ class OrderCreateSchema(BaseModel):
     car_id: int
     salesperson_id: int
     status: OrderStatus
-    comments: Optional[str] = None
+    comments: str
 
 
 class OrderUpdateSchema(BaseModel):
