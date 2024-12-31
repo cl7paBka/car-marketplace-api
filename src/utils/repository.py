@@ -18,6 +18,11 @@ class AbstractRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    async def get_many(self, **filter_by):
+        """Fetches all records based on provided filter criteria."""
+        raise NotImplementedError
+
+    @abstractmethod
     async def edit_one(self, id: int, data: dict):
         """Edits a record by ID and returns it."""
         raise NotImplementedError
@@ -49,14 +54,21 @@ class SQLAlchemyRepository(AbstractRepository):
         return entity
 
     async def get_one(self, **filter_by):
-        # Filter by is used for different get functions in services, for example: get by transmission, get by year in
-        # src/services/cars.py
+        # Filter by is used for different get functions in services, for example: get by vin_number
+        # in src/services/cars.py, get by email in src/services/users.py
         statement = select(self.model).filter_by(**filter_by)
         result = await self.session.execute(statement)
         instance = result.scalar_one_or_none()
         if not instance:
             return None  # Return None if no record is found
         return instance.to_read_model()
+
+    async def get_many(self, **filter_by):
+        statement = select(self.model).filter_by(**filter_by)
+        result = await self.session.execute(statement)
+
+        instances = [instance.to_read_model() for instance in result.scalars().all()]
+        return instances
 
     async def edit_one(self, id: int, data: dict):
         # Filter data to exclude None values, because all attributes in db are not nullable
@@ -73,8 +85,8 @@ class SQLAlchemyRepository(AbstractRepository):
     async def get_all(self):
         statement = select(self.model)
         result = await self.session.execute(statement)
-        result = [instance.to_read_model() for instance in result.scalars().all()]
-        return result
+        instances = [instance.to_read_model() for instance in result.scalars().all()]  # Can be []
+        return instances
 
     async def delete_one(self, id: int) -> int:
         statement = delete(self.model).where(self.model.id == id).returning(self.model.id)
