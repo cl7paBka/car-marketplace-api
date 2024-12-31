@@ -107,7 +107,8 @@ async def get_users_by_role(
         role: Role,
         service: Annotated[UsersService, Depends(users_service)]
 ):
-    return await service.get_many_by_role(role)
+    filter_by = {"role": role}
+    return await service.get_many_by_filter(**filter_by)
 
 
 @router.get(
