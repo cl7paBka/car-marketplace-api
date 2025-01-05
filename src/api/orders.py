@@ -1,10 +1,20 @@
+from typing import Annotated, List
+
 from fastapi import APIRouter, Depends
-from typing import Annotated
+
+from src.api.dependencies import orders_service
+# from src.api.responses.orders_responses import
 from src.schemas.orders import (
     OrderCreateSchema,
-    OrderUpdateSchema)
+    OrderUpdateSchema,
+    OrderSchema
+)
+from src.schemas.base_response import (
+    BaseResponse,
+    BaseStatusMessageResponse
+)
 from src.services.orders import OrdersService
-from src.api.dependencies import orders_service
+from src.utils.enums import OrderStatus
 
 router = APIRouter(
     prefix="/orders",
@@ -12,23 +22,17 @@ router = APIRouter(
 )
 
 
-# @router.post("/create")
-# async def create_order(
-#         order: OrderCreate,
-#         service: Annotated[OrdersService, Depends(orders_service)]
-# ):
-#     created_order_id = await service.create_order(order)
-#     return {
-#         "status": "success",
-#         "message": f"Created order with ID: {created_order_id}"
-#     }
-#
-#
-# @router.get("/")
-# async def get_all_orders(service: Annotated[OrdersService, Depends(orders_service)]):
-#     all_orders = await service.get_all_orders()
-#     return {
-#         "status": "success",
-#         "message": f"All orders retrieved",
-#         "data": all_orders
-#     }
+# TODO: Make better end-points
+@router.post(
+    path="/create",
+    response_model=BaseResponse[OrderSchema],
+    summary="Create a new order",
+    description="""
+    """
+    # responses
+)
+async def create_order(
+        order: OrderCreateSchema,
+        service: Annotated[OrdersService, Depends(orders_service)]
+):
+    return await service.create(order)
