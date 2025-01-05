@@ -26,4 +26,6 @@ def cars_service(session: AsyncSession = Depends(get_async_session)) -> CarsServ
 
 def orders_service(session: AsyncSession = Depends(get_async_session)) -> OrdersService:
     orders_repository = OrdersRepository(session=session)
-    return OrdersService(orders_repository)
+    users_repository = UsersRepository(session=session)
+    cars_repository = CarsRepository(session=session)
+    return OrdersService(orders_repo=orders_repository, users_repo=users_repository, cars_repo=cars_repository)
