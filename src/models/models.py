@@ -104,6 +104,7 @@ class Cars(Base):
     transmission: Mapped[TransmissionType] = mapped_column(SAEnum(TransmissionType), nullable=False)
     engine: Mapped[EngineType] = mapped_column(SAEnum(EngineType), nullable=False)
     vin_number: Mapped[str] = mapped_column(String(17), nullable=False, unique=True)  # VIN must be unique
+    # TODO Maybe change vin_number from str type to int?
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
