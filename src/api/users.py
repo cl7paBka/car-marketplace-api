@@ -33,7 +33,7 @@ router = APIRouter(
 
 # TODO: Make better end-points
 
-@router.post( # TODO: Add information about user roles in description in create end-point
+@router.post(  # TODO: Add information about user roles in description in create end-point
     path="/create",
     response_model=BaseResponse[UserSchema],
     summary="Create a new user",
