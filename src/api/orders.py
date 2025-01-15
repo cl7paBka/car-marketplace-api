@@ -3,7 +3,7 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends
 
 from src.api.dependencies import orders_service
-# from src.api.responses.orders_responses import
+# from src.api.responses.orders_responses import # TODO: responses for orders
 from src.schemas.orders import (
     OrderCreateSchema,
     OrderUpdateSchema,
@@ -15,6 +15,7 @@ from src.schemas.base_response import (
 )
 from src.services.orders import OrdersService
 from src.utils.enums import OrderStatus
+from src.utils.exception_handler import validate_payload  # Validates input data in api layer for patch end-point
 
 router = APIRouter(
     prefix="/orders",

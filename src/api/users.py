@@ -24,6 +24,7 @@ from src.schemas.base_response import (
 )
 from src.services.users import UsersService
 from src.utils.enums import Role
+from src.utils.exception_handler import validate_payload  # Validates input data in api layer for patch end-point
 
 router = APIRouter(
     prefix="/users",
@@ -148,6 +149,7 @@ async def update_user_by_user_id(
         new_user: UserUpdateSchema,
         service: Annotated[UsersService, Depends(users_service)]
 ):
+    validate_payload(new_user)  # TODO: Make responses for 400
     return await service.update_by_id(user_id, new_user)
 
 

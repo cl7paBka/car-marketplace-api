@@ -3,7 +3,7 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends
 
 from src.api.dependencies import cars_service
-# from src.api.responses.cars_responses import (
+# from src.api.responses.cars_responses import ( # TODO: Responses for car end-points
 #
 # )
 from src.schemas.cars import (
@@ -20,6 +20,7 @@ from src.utils.enums import (
     EngineType,
     TransmissionType
 )
+from src.utils.exception_handler import validate_payload  # Validates input data in api layer for patch end-point
 
 router = APIRouter(
     prefix="/cars",
@@ -138,6 +139,7 @@ async def update_car_by_car_id(
         new_car: CarUpdateSchema,
         service: Annotated[CarsService, Depends(cars_service)]
 ):
+    validate_payload(new_car)
     return await service.update_by_id(car_id, new_car)
 
 
