@@ -37,3 +37,35 @@ async def create_order(
         service: Annotated[OrdersService, Depends(orders_service)]
 ):
     return await service.create(order)
+
+# @router.get(
+#     path="/{order_id}"
+# )
+
+# @router.get(
+#     path="/status/{status}"
+# )
+
+# @router.get(
+#     path="/customer_id/{customer_id}"
+# )
+
+# @router.get(
+#     path="/salesperson_id/{salesperson_id}"
+# )
+
+# @router.get(
+#     path="/car_id/{car_id}"
+# )
+
+# @router.get(
+#     path="/"
+# )
+
+# @router.patch(
+#     path="/patch/{order_id}"
+# )
+
+# @router.delete(
+#     path="/delete/{order_id}"
+# )
