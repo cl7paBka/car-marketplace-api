@@ -5,7 +5,7 @@ from src.db.db import Base, get_async_session
 from main import app
 
 # Test database configuration
-DATABASE_URL = "postgresql+asyncpg://postgres:789456123@localhost/test_db"
+DATABASE_URL = "postgresql+asyncpg://postgres:1234@localhost/test_db"
 engine_test = create_async_engine(DATABASE_URL, future=True)
 TestSession = async_sessionmaker(bind=engine_test, expire_on_commit=False)
 
