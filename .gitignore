@@ -34,3 +34,6 @@ Thumbs.db
 
 # ignore .env
 .env
+
+# ignore .coverage from pytest
+.coverage
