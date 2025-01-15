@@ -28,6 +28,7 @@ class Orders(Base):
 
     # Foreign Keys
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
+    # TODO: Refactor user_id to customer_id
     car_id: Mapped[int] = mapped_column(Integer, ForeignKey("cars.id"), nullable=False)
     salesperson_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
 
