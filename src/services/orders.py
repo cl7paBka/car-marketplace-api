@@ -93,6 +93,21 @@ class OrdersService:
         except Exception as e:
             handle_exception_default_500(e)
 
+    async def get_by_order_id(self, order_id: int) -> BaseResponse[OrderSchema]:
+        try:
+            order = await self.orders_repo.get_one(id=order_id)
+            if order:  # If order exists
+                return BaseResponse[OrderSchema](
+                    status="success",
+                    message="Order found.",
+                    data=order
+                )
+        except Exception as e:
+            handle_exception_default_500(e)  # Catches unexpected errors
+
+        # If order not found
+        handle_exception(status_code=404, custom_message="Order not found.")
+
     # Helper method for other get_orders functions
     async def _get_many_by_filter(self, **filter_by: Dict[str, Any]) -> [List[OrderSchema]]:
         """
@@ -120,32 +135,41 @@ class OrdersService:
         )
 
     async def get_by_customer_id(self, customer_id: int) -> BaseResponse[List[OrderSchema]]:
+        # Check for user existence by customer_id
         try:
             existing_customer = await self.users_repo.get_one(id=customer_id)
         except Exception as e:
             handle_exception_default_500(e)
 
-        # Check for user existence by customer_id
         if not existing_customer:  # If there is no user by this customer_id
             handle_exception(
                 status_code=404,
                 custom_message=f"Customer with ID: '{customer_id}' was not found."
             )
 
-        # Check for user role was in create order function before, so it is not needed in this function.
+        if existing_customer.role.value != "customer":  # If user's role is not customer
+            return handle_exception(
+                status_code=400,
+                custom_message=f"The user with ID: '{customer_id}' is a {existing_customer.role.value}, not a customer."
+            )
+
         # Logic for retrieving orders_by_customer_id:
-        filter_by = {"customer_id": customer_id}
-        orders_by_customer_id = await self._get_many_by_filter(**filter_by)
-        if orders_by_customer_id:  # If there are orders by this customer_id
+        filter_by = {"user_id": customer_id}
+        try:
+            orders_by_customer_id = await self._get_many_by_filter(**filter_by)
+            if orders_by_customer_id:  # If there are orders by this customer_id
+                return BaseResponse[List[OrderSchema]](
+                    status="success",
+                    message=f"Orders for customer with ID: '{customer_id}' found.",
+                    data=orders_by_customer_id
+                )
             return BaseResponse[List[OrderSchema]](
-                status="success",
-                message=f"Orders for customer with ID: '{customer_id}' found.",
+                status="error",
+                message=f"No orders for customer with ID: '{customer_id}' found.",
                 data=orders_by_customer_id
             )
-        return BaseResponse[List[OrderSchema]](
-            status="error",
-            message=f"No orders for customer with ID: '{customer_id}' found."
-        )
+        except Exception as e:
+            handle_exception_default_500(e)
 
     async def get_by_salesperson_id(self, salesperson_id: int) -> BaseResponse[List[OrderSchema]]:
         try:
@@ -159,21 +183,29 @@ class OrdersService:
                 status_code=404,
                 custom_message=f"Salesperson with ID: '{salesperson_id}' was not found."
             )
+        if existing_salesperson.role.value != "manager":  # If user's role is not manager
+            return handle_exception(
+                status_code=400,
+                custom_message=f"The user with ID: '{salesperson_id}' is a {existing_salesperson.role.value}, not a manager."
+            )
 
-        # Check for user role was in create order function before, so it is not needed in this function.
         # Logic for retrieving orders_by_salesperson_id:
         filter_by = {"salesperson_id": salesperson_id}
-        orders_by_salesperson_id = await self._get_many_by_filter(**filter_by)
-        if orders_by_salesperson_id:
+        try:
+            orders_by_salesperson_id = await self._get_many_by_filter(**filter_by)
+            if orders_by_salesperson_id:
+                return BaseResponse[List[OrderSchema]](
+                    status="success",
+                    message=f"Orders for salesperson with ID: '{salesperson_id}' found.",
+                    data=orders_by_salesperson_id
+                )
             return BaseResponse[List[OrderSchema]](
-                status="success",
-                message=f"Orders for salesperson with ID: '{salesperson_id}' found.",
+                status="error",
+                message=f"No orders for salesperson with ID: '{salesperson_id}' found.",
                 data=orders_by_salesperson_id
             )
-        return BaseResponse[List[OrderSchema]](
-            status="error",
-            message=f"No orders for salesperson with ID: '{salesperson_id}' found."
-        )
+        except Exception as e:
+            handle_exception_default_500(e)
 
     async def get_by_car_id(self, car_id: int) -> BaseResponse[List[OrderSchema]]:
         try:

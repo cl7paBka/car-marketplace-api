@@ -101,7 +101,7 @@ class CarsService:
             # Catch unexpected error
             handle_exception_default_500(e)
 
-    async def update_by_id(self, car_id: int, car: CarUpdateSchema):
+    async def update_by_id(self, car_id: int, car: CarUpdateSchema) -> BaseResponse[CarSchema]:
         try:
             existing_car_by_id = await self.cars_repo.get_one(id=car_id)
         except Exception as e:
