@@ -13,15 +13,8 @@ from src.api.responses.users_responses import (
     update_user_responses,
     delete_user_responses,
 )
-from src.schemas.users import (
-    UserCreateSchema,
-    UserUpdateSchema,
-    UserSchema
-)
-from src.schemas.base_response import (
-    BaseResponse,
-    BaseStatusMessageResponse
-)
+from src.schemas.users import UserCreateSchema, UserUpdateSchema, UserSchema
+from src.schemas.base_response import BaseResponse, BaseStatusMessageResponse
 from src.services.users import UsersService
 from src.utils.enums import Role
 from src.utils.exception_handler import validate_payload  # Validates input data in api layer for patch end-point
@@ -32,9 +25,7 @@ router = APIRouter(
 )
 
 
-# TODO: Make better end-points
-
-@router.post(  # TODO: Add information about user roles in description in create end-point
+@router.post(
     path="/create",
     response_model=BaseResponse[UserSchema],
     summary="Create a new user",
@@ -43,6 +34,7 @@ router = APIRouter(
 
     - Before creating, the system checks if a user with the same email already exists.
     - If a user with the same email is found, the process will stop, and a 409 Conflict status code will be returned.
+    Users role may be: 'customer', 'manager', 'admin'
     """,
     responses=create_user_responses
 )
@@ -141,6 +133,7 @@ async def get_all_users(
     - If the email field is being updated, the system checks if another user already has the same email.
       If a duplicate is found, a 409 Conflict status code will be returned.
     - You can update only the fields you need, leaving others unchanged.
+    Users role may be: 'customer', 'manager', 'admin'
     """,
     responses=update_user_responses
 )
@@ -149,7 +142,7 @@ async def update_user_by_user_id(
         new_user: UserUpdateSchema,
         service: Annotated[UsersService, Depends(users_service)]
 ):
-    validate_payload(new_user)  # TODO: Make responses for 400
+    validate_payload(new_user)
     return await service.update_by_id(user_id, new_user)
 
 
