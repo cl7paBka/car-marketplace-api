@@ -2,40 +2,46 @@ from typing import Any, Dict, List
 
 from sqlalchemy.exc import NoResultFound
 
-from src.schemas.base_response import (
-    BaseResponse,
-    BaseStatusMessageResponse
-)
-from src.schemas.orders import (
-    OrderCreateSchema,
-    OrderSchema,
-    OrderUpdateSchema
-)
-from src.utils.exception_handler import (
-    handle_exception,
-    handle_exception_default_500
-)
+from src.schemas.base_response import BaseResponse, BaseStatusMessageResponse
+from src.schemas.orders import OrderCreateSchema, OrderSchema, OrderUpdateSchema
+from src.utils.exception_handler import handle_exception, handle_exception_default_500
 from src.utils.repository import AbstractRepository
-from src.utils.enums import (
-    Role,
-    OrderStatus
-)
+from src.utils.enums import OrderStatus
 
 
-# TODO REPR, NOTATION, COMMENTS, improve grammar in comments
 class OrdersService:
+    """
+    Service layer for managing orders.
+
+    This class provides methods to handle order-related operations, such as
+    creating, retrieving, updating, and deleting cars. It acts as a bridge
+    between the repository layer and the application layer.
+    """
+
     def __init__(
             self,
             orders_repo: AbstractRepository,
             users_repo: AbstractRepository,
             cars_repo: AbstractRepository
-    ):
+    ) -> None:
+        """
+        Initialize the OrdersService with repositories for orders, users, and cars.
+        """
         self.orders_repo = orders_repo
         self.users_repo = users_repo
         self.cars_repo = cars_repo
 
     async def create(self, order: OrderCreateSchema) -> BaseResponse[OrderSchema]:
+        """
+        Create a new order after validating associated entities.
+
+        This method:
+        1. Verifies that the customer, salesperson, and car exist.
+        2. Checks roles for customer ('customer') and salesperson ('manager').
+        3. Creates the order if all validations pass.
+        """
         try:
+            # Validate the existence of related entities
             existing_customer = await self.users_repo.get_one(id=order.user_id)
             existing_salesperson = await self.users_repo.get_one(id=order.salesperson_id)
             existing_car = await self.cars_repo.get_one(id=order.car_id)
@@ -82,6 +88,7 @@ class OrdersService:
                 custom_message=f"Car with ID: '{order.car_id}' was not found."
             )
 
+        # Create the order if validations pass
         try:
             orders_dict = order.model_dump()
             created_order = await self.orders_repo.create_one(orders_dict)
@@ -94,6 +101,9 @@ class OrdersService:
             handle_exception_default_500(e)
 
     async def get_by_order_id(self, order_id: int) -> BaseResponse[OrderSchema]:
+        """
+        Retrieve a single order by its ID.
+        """
         try:
             order = await self.orders_repo.get_one(id=order_id)
             if order:  # If order exists
@@ -120,6 +130,9 @@ class OrdersService:
             handle_exception_default_500(e)
 
     async def get_by_status(self, status: OrderStatus) -> BaseResponse[List[OrderSchema]]:
+        """
+        Retrieve order by its status.
+        """
         filter_by = {"status": status}
         orders_by_status = await self._get_many_by_filter(**filter_by)
         if orders_by_status:  # If orders_by_status is not empty
@@ -135,6 +148,9 @@ class OrdersService:
         )
 
     async def get_by_customer_id(self, customer_id: int) -> BaseResponse[List[OrderSchema]]:
+        """
+        Retrieve order by customer ID.
+        """
         # Check for user existence by customer_id
         try:
             existing_customer = await self.users_repo.get_one(id=customer_id)
@@ -172,6 +188,9 @@ class OrdersService:
             handle_exception_default_500(e)
 
     async def get_by_salesperson_id(self, salesperson_id: int) -> BaseResponse[List[OrderSchema]]:
+        """
+        Retrieve order by salesperson ID.
+        """
         try:
             existing_salesperson = await self.users_repo.get_one(id=salesperson_id)
         except Exception as e:
@@ -208,6 +227,9 @@ class OrdersService:
             handle_exception_default_500(e)
 
     async def get_by_car_id(self, car_id: int) -> BaseResponse[List[OrderSchema]]:
+        """
+        Retrieve order by car ID.
+        """
         try:
             existing_car = await self.cars_repo.get_one(id=car_id)
         except Exception as e:
@@ -234,7 +256,10 @@ class OrdersService:
             message=f"No orders for car with ID: '{car_id}' found."
         )
 
-    async def get_all(self):
+    async def get_all(self) -> BaseResponse[List[OrderSchema]]:
+        """
+        Retrieve all orders in the system.
+        """
         try:
             all_orders = await self.orders_repo.get_all()
             if all_orders:
@@ -252,6 +277,9 @@ class OrdersService:
             handle_exception_default_500(e)
 
     async def update_by_id(self, order_id: int, order: OrderUpdateSchema) -> BaseResponse[OrderSchema]:
+        """
+        Update an order by its ID.
+        """
         try:
             existing_order_by_id = await self.orders_repo.get_one(id=order_id)
         except Exception as e:
@@ -320,6 +348,9 @@ class OrdersService:
             handle_exception_default_500(e)
 
     async def delete_by_id(self, order_id: int) -> BaseStatusMessageResponse:
+        """
+        Delete an order by its ID.
+        """
         try:
             await self.orders_repo.delete_one(order_id)
             return BaseStatusMessageResponse(
