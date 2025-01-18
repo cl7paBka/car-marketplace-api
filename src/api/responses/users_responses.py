@@ -1,7 +1,5 @@
 # Responses for end-points in src/api/users.py
-
-# users/create
-
+# post users/create
 create_user_responses = {
     409: {
         "description": "User with the given email already exists",
@@ -35,7 +33,7 @@ create_user_responses = {
     },
 }
 
-# users/{user_id}
+# get users/{user_id}
 get_user_by_id_responses = {
     404: {
         "description": "User not found",
@@ -69,7 +67,7 @@ get_user_by_id_responses = {
     },
 }
 
-# users/email/{user_email}
+# get users/email/{user_email}
 get_user_by_email_responses = {
     404: {
         "description": "User not found by email",
@@ -103,7 +101,7 @@ get_user_by_email_responses = {
     },
 }
 
-# users/role/{role}
+# get users/role/{role}
 get_users_by_role_responses = {
     500: {
         "description": "Internal server error",
@@ -122,7 +120,7 @@ get_users_by_role_responses = {
     },
 }
 
-# users/
+# get users/
 get_all_users_responses = {
     500: {
         "description": "Internal server error",
@@ -141,8 +139,23 @@ get_all_users_responses = {
     },
 }
 
-# users/patch/{user_id}
+# patch users/patch/{user_id}
 update_user_responses = {
+    400: {
+        "description": "Paylod is not valid",
+        "content": {
+            "application/json": {
+                "examples": {
+                    "not_found": {
+                        "summary": "Empty payload",
+                        "value": {
+                            "detail": "Payload cannot be empty."
+                        }
+                    }
+                }
+            }
+        }
+    },
     404: {
         "description": "User not found",
         "content": {
@@ -190,7 +203,7 @@ update_user_responses = {
     },
 }
 
-# users/delete/{user_id}
+# delete users/delete/{user_id}
 delete_user_responses = {
     200: {
         "description": "User successfully deleted",

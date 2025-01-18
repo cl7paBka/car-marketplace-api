@@ -1,37 +1,46 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from sqlalchemy.exc import NoResultFound
 
-from src.schemas.base_response import (
-    BaseResponse,
-    BaseStatusMessageResponse
-)
-from src.schemas.cars import (
-    CarCreateSchema,
-    CarUpdateSchema,
-    CarSchema
-)
-from src.utils.enums import (
-    EngineType,
-    TransmissionType
-)
-from src.utils.exception_handler import (
-    handle_exception,
-    handle_exception_default_500
-)
+from src.schemas.base_response import BaseResponse, BaseStatusMessageResponse
+from src.schemas.cars import CarCreateSchema, CarUpdateSchema, CarSchema
+from src.utils.exception_handler import handle_exception, handle_exception_default_500
 from src.utils.repository import AbstractRepository
 
 
-# TODO: Repr, Notation, Comments, Tosi Bosi :D
 class CarsService:
-    def __init__(self, cars_repo: AbstractRepository):
+    """
+    Service layer for managing cars.
+
+    This class provides methods to handle car-related operations, such as
+    creating, retrieving, updating, and deleting cars. It acts as a bridge
+    between the repository layer and the application layer.
+    """
+
+    def __init__(self, cars_repo: AbstractRepository) -> None:
+        """
+        Initialize the CarsService with a car repository.
+        """
         self.cars_repo = cars_repo
 
-    async def add(self, car: CarCreateSchema) -> BaseResponse[CarSchema]:
+    async def _check_car_existence(self, **filter_by) -> Optional[CarSchema]:
+        """
+        Helper method to check if a car exists based on the provided filter criteria.
+        """
         try:
-            existing_car = await self.cars_repo.get_one(vin_number=car.vin_number)
-        except Exception as e:
+            existing_car = await self.cars_repo.get_one(**filter_by)
+            return existing_car
+        except Exception as e:  # If error while checking for user existence throw HTTPException
             handle_exception_default_500(e)
+
+    async def add(self, car: CarCreateSchema) -> BaseResponse[CarSchema]:
+        """
+        Create a new car in the system.
+
+        1. Checks if a car with the given VIN number already exists.
+        2. If it doesn't exist, creates a new car record in the repository.
+        """
+        existing_car = await self._check_car_existence(vin_number=car.vin_number)
 
         if existing_car:
             handle_exception(
@@ -51,6 +60,9 @@ class CarsService:
             handle_exception_default_500(e)
 
     async def get_one_by_filter(self, **filter_by) -> BaseResponse[CarSchema]:
+        """
+        Retrieve a single car based on provided filter criteria.
+        """
         try:
             car = await self.cars_repo.get_one(**filter_by)
             if car:
@@ -66,6 +78,9 @@ class CarsService:
         handle_exception(status_code=404, custom_message="Car not found.")
 
     async def get_many_by_filter(self, **filter_by: Dict[str, Any]) -> BaseResponse[List[CarSchema]]:
+        """
+        Retrieve multiple cars based on provided filter criteria.
+        """
         try:
             cars_by_criteria = await self.cars_repo.get_many(**filter_by)
             if cars_by_criteria:
@@ -84,6 +99,9 @@ class CarsService:
             handle_exception_default_500(e)
 
     async def get_all(self) -> BaseResponse[List[CarSchema]]:
+        """
+        Retrieve all cars in the system.
+        """
         try:
             all_cars = await self.cars_repo.get_all()
             if all_cars:
@@ -101,11 +119,11 @@ class CarsService:
             # Catch unexpected error
             handle_exception_default_500(e)
 
-    async def update_by_id(self, car_id: int, car: CarUpdateSchema):
-        try:
-            existing_car_by_id = await self.cars_repo.get_one(id=car.id)
-        except Exception as e:
-            handle_exception_default_500(e)
+    async def update_by_id(self, car_id: int, car: CarUpdateSchema) -> BaseResponse[CarSchema]:
+        """
+        Update an existing car's details by its ID.
+        """
+        existing_car_by_id = await self._check_car_existence(id=car_id)
 
         if not existing_car_by_id:
             handle_exception(
@@ -114,10 +132,7 @@ class CarsService:
             )
 
         if car.vin_number:
-            try:
-                existing_car_by_vin = await self.cars_repo.get_one(vin_number=car.vin_number)
-            except Exception as e:
-                handle_exception_default_500()
+            existing_car_by_vin = await self._check_car_existence(vin_number=car.vin_number)
 
             if existing_car_by_vin:  # If car with this new vin_number exists throw HTTPException
                 handle_exception(
@@ -138,6 +153,9 @@ class CarsService:
             handle_exception_default_500(e)
 
     async def delete_by_id(self, car_id: int) -> BaseStatusMessageResponse:
+        """
+        Delete a car by its ID.
+        """
         try:
             await self.cars_repo.delete_one(car_id)
             return BaseStatusMessageResponse(
