@@ -3,9 +3,9 @@ services:
     image: postgres:15
     container_name: postgres_db
     environment:
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "5hA2RxS31dDhSrxn" # Change this before starting the project!
-      POSTGRES_DB: "postgres"
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
     ports:
       - "5432:5432"
     volumes:
@@ -17,15 +17,9 @@ services:
     container_name: car_shop_app
     ports:
       - "8000:8000"
-    environment:
-      DATABASE_HOST: "db"
-      DATABASE_NAME: "postgres"
-      DATABASE_USER: "postgres"
-      DATABASE_PASSWORD: "5hA2RxS31dDhSrxn" # Change this before starting the project!
-      DATABASE_PORT: "5432"
     depends_on:
       - db
 
-# Volumes are used to create persistent data storage that is not deleted when the container is restarted or recreated.
+# Volumes are used to create persistent data storage that is not deleted when the container is restarted or recreated
 volumes:
   postgres_data:
