@@ -27,14 +27,14 @@ def event_loop():
 
     Why do we need this?
     --------------------
-    On Windows, the default event loop policy is ProactorEventLoop, which often
-    conflicts with asyncpg when closing or performing network operations. This
+    I'm making this pet-project on Windows 10, the default event loop policy for windows is ProactorEventLoop,
+    which often conflicts with asyncpg when closing or performing network operations. This
     conflict can lead to errors like 'Event loop is closed' or
     "'NoneType' object has no attribute 'send'" because asyncpg might try to send
     or receive data after the loop is already shut down.
 
     By switching to WindowsSelectorEventLoopPolicy and using a single event loop
-    for all tests, we ensure that asyncpg can gracefully handle any remaining
+    for all tests, I ensure that asyncpg can gracefully handle any remaining
     operations without having the event loop abruptly closed between tests.
     """
     if hasattr(asyncio, "WindowsSelectorEventLoopPolicy"):
@@ -69,6 +69,7 @@ async def override_get_async_session():
     Overrides the default get_async_session dependency to use test session
     so that each test runs in isolation with its own transaction scope.
     """
+
     async def _override():
         async with TestSession() as session:
             try:
