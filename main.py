@@ -12,7 +12,7 @@ app = FastAPI(
     title="Car Marketplace API"
 )
 
-for router in all_routers:
+for router in all_routers:  # Include routers into FastAPI app from src/api/routes (all of them in src/api/routers.py)
     app.include_router(router)
 
 

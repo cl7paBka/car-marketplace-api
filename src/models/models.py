@@ -99,7 +99,7 @@ class Cars(Base):
     brand: Mapped[str] = mapped_column(String(255), nullable=False)
     model: Mapped[str] = mapped_column(String(255), nullable=False)
     price: Mapped[int] = mapped_column(Integer, nullable=False)  # TODO: Ensure this value is > 0 in business logic
-    year: Mapped[int] = mapped_column(Integer, nullable=False)
+    year: Mapped[int] = mapped_column(Integer, nullable=False)   # TODO: Add logic, that year can't be more or less 1900 and 2025
     color: Mapped[str] = mapped_column(String(50), nullable=False)
     mileage: Mapped[int] = mapped_column(Integer, nullable=False)
     transmission: Mapped[TransmissionType] = mapped_column(SAEnum(TransmissionType), nullable=False)

@@ -11,12 +11,13 @@ Welcome to **car-marketplace-api**! This project serves as the back-end for a ca
 
 **Technology Stack**:
 
-- 🐍 **Python**
+- 🐍 **Python** 3.11 Version
 - ⚡ **FastAPI** – Framework for building APIs
 - 🗃️ **SQLAlchemy 2+** – ORM for handling database interactions
 - 🐘 **PostgreSQL** – Database solution
 - 📊 **Pydantic** – Data validation and schema management
 - 🐳 **Docker** & **Docker Compose** – For containerization and easy deployment
+- Pytest for tests
 
 ---
 

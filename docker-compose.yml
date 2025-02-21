@@ -1,7 +1,8 @@
 services:
+  # Main database for application
   db:
     image: postgres:15
-    container_name: postgres_db
+    container_name: ${DATABASE_HOST:-car-marketplace-db} # Name the container for easier identification car-marketplace-db
     environment:
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
@@ -10,15 +11,27 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  # Database for tests
+  db_test:
+    image: postgres:15
+    container_name: ${TEST_DATABASE_HOST:-car-marketplace-test-db}
+    environment:
+      POSTGRES_USER: ${TEST_DATABASE_USER:-postgres}
+      POSTGRES_PASSWORD: ${TEST_DATABASE_PASSWORD:-postgres}
+      POSTGRES_DB: ${TEST_DATABASE_NAME:-car-marketplace-test}
+    ports:
+      - "5433:5432"  # Expose the test DB container's port 5432 to the host's port 5433
+                     # This avoids port conflicts with the main database service
 
   app:
     build: .
     restart: always
-    container_name: car_shop_app
+    container_name: car-marketplace-app
     ports:
       - "8000:8000"
     depends_on:
       - db
+#      - db_test # Question? Maybe delete depends on db_test, because application can start without test database
 
 # Volumes are used to create persistent data storage that is not deleted when the container is restarted or recreated
 volumes:
