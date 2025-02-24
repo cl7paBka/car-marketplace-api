@@ -338,7 +338,7 @@ class OrdersService:
         # Then update order after all checks
         try:
             update_data = order.model_dump(exclude_unset=True)
-            updated_order = await self.orders_repo.update_one(order_id, update_data)
+            updated_order = await self.orders_repo.edit_one(order_id, update_data)
             return BaseResponse[OrderSchema](
                 status="success",
                 message=f"Order with id: '{order_id}' successfully updated.",

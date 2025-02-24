@@ -12,7 +12,7 @@ app = FastAPI(
     title="Car Marketplace API"
 )
 
-for router in all_routers:
+for router in all_routers:  # Include routers into FastAPI app from src/api/routes (all of them in src/api/routers.py)
     app.include_router(router)
 
 
@@ -21,7 +21,7 @@ async def main():
     await init_db()
 
     logging.info("Starting FastAPI app")
-    uvicorn.run("main:app", host="localhost", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
 
 if __name__ == "__main__":

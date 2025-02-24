@@ -26,12 +26,13 @@ router = APIRouter(
 )
 
 
-@router.post(
+@router.post( # TODO: REDO DESCRIPTION VISUAL BUG
     path="/create",
     response_model=BaseResponse[OrderSchema],
     summary="Create a new order",
     description="""
     Create a new order by validating:
+    
     - The existence of the customer (`user_id`) and confirming their role is 'customer'.
     - The existence of the salesperson (`salesperson_id`) and confirming their role is 'manager'.
     - The existence of the car (`car_id`).
