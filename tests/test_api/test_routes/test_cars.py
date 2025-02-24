@@ -1,14 +1,16 @@
 import pytest
-from tests.utils.config import CAR_CREATE_VALID, CAR_CREATE_ANOTHER, CAR_UPDATE_VALID
+from tests.utils.config import (
+    CAR_CREATE_VALID,
+    CAR_CREATE_ANOTHER,
+    CAR_UPDATE_VALID,
+    NON_EXISTENT_ID
+)
 
 
-# -----------------------------
-# POST /cars/add
-# -----------------------------
 @pytest.mark.asyncio
 async def test_add_car_success(client):
     """
-    Tests successful creation of a new car.
+    Test successful creation of a new car.
     Expects a 200 status code and "Car created." message.
     """
     response = await client.post("/cars/add", json=CAR_CREATE_VALID)
@@ -16,8 +18,8 @@ async def test_add_car_success(client):
     data = response.json()
     assert data["status"] == "success", f"Unexpected status: {data['status']}"
     assert data["message"] == "Car created.", f"Unexpected message: {data['message']}"
+
     car = data["data"]
-    # Validate that each field in the payload matches the created car
     for key, value in CAR_CREATE_VALID.items():
         assert car[key] == value, f"Mismatch in field '{key}'"
     assert "id" in car, "Created car object is missing 'id'."
@@ -27,13 +29,13 @@ async def test_add_car_success(client):
 @pytest.mark.asyncio
 async def test_add_car_conflict_vin(client):
     """
-    Tests that creating a car with a duplicate VIN returns a 409 Conflict.
+    Test that creating a car with a duplicate VIN returns a 409 Conflict.
     """
-    # First creation should succeed.
+    # First creation
     first_resp = await client.post("/cars/add", json=CAR_CREATE_VALID)
     assert first_resp.status_code == 200, f"Error during first creation: {first_resp.text}"
 
-    # Second creation with the same VIN should fail.
+    # Second creation with the same VIN should fail
     second_resp = await client.post("/cars/add", json=CAR_CREATE_VALID)
     assert second_resp.status_code == 409, f"Expected 409, got {second_resp.status_code}"
     detail = second_resp.json()["detail"]
@@ -41,13 +43,10 @@ async def test_add_car_conflict_vin(client):
     assert expected_detail in detail, f"Unexpected conflict message: {detail}"
 
 
-# -----------------------------
-# GET /cars/{car_id}
-# -----------------------------
 @pytest.mark.asyncio
 async def test_get_car_by_id_success(client):
     """
-    Tests retrieval of a car by its ID.
+    Test retrieval of a car by its ID.
     Expects a 200 status code and the correct car data.
     """
     create_resp = await client.post("/cars/add", json=CAR_CREATE_VALID)
@@ -65,8 +64,8 @@ async def test_get_car_by_id_success(client):
 @pytest.mark.asyncio
 async def test_get_car_by_id_not_found(client):
     """
-    Tests retrieval of a car using a non-existent ID.
-    Expects a 404 Not Found with "Car not found." message.
+    Test retrieval of a car with a non-existent ID.
+    Expects a 404 status code with "Car not found." message.
     """
     response = await client.get("/cars/9999999")
     assert response.status_code == 404, f"Expected 404, got {response.status_code}"
@@ -74,13 +73,10 @@ async def test_get_car_by_id_not_found(client):
     assert detail == "Car not found.", f"Unexpected detail message: {detail}"
 
 
-# -----------------------------
-# GET /cars/vin/{vin_number}
-# -----------------------------
 @pytest.mark.asyncio
 async def test_get_car_by_vin_success(client):
     """
-    Tests retrieval of a car by its VIN number.
+    Test retrieval of a car by its VIN number.
     Expects a 200 status code and the correct car data.
     """
     create_resp = await client.post("/cars/add", json=CAR_CREATE_VALID)
@@ -98,8 +94,8 @@ async def test_get_car_by_vin_success(client):
 @pytest.mark.asyncio
 async def test_get_car_by_vin_not_found(client):
     """
-    Tests retrieval of a car with a non-existent VIN.
-    Expects a 404 Not Found with "Car not found." message.
+    Test retrieval of a car with a non-existent VIN.
+    Expects a 404 status code with "Car not found." message.
     """
     response = await client.get("/cars/vin/INVALIDVIN123")
     assert response.status_code == 404, f"Expected 404, got {response.status_code}"
@@ -107,18 +103,16 @@ async def test_get_car_by_vin_not_found(client):
     assert detail == "Car not found.", f"Unexpected detail message: {detail}"
 
 
-# -----------------------------
-# GET /cars/engine/{engine_type}
-# -----------------------------
 @pytest.mark.asyncio
 async def test_get_cars_by_engine_success(client):
     """
-    Tests retrieval of cars filtered by engine type.
-    Expects the response to include the created cars with the specified engine.
+    Test retrieval of cars filtered by engine type.
+    Expects the response to include created cars with the specified engine.
     """
     # Create two cars with 'gasoline' engine.
     car1_resp = await client.post("/cars/add", json=CAR_CREATE_VALID)
     assert car1_resp.status_code == 200, f"Error creating first car: {car1_resp.text}"
+
     car2_data = CAR_CREATE_ANOTHER.copy()
     car2_data["engine"] = "gasoline"
     car2_resp = await client.post("/cars/add", json=car2_data)
@@ -130,8 +124,8 @@ async def test_get_cars_by_engine_success(client):
     if data["status"] == "success":
         assert data["message"] == "Cars found.", "Unexpected message when filtering by engine."
         returned_ids = [car["id"] for car in data["data"]]
-        assert car1_resp.json()["data"]["id"] in returned_ids, "First car not found in engine filter response."
-        assert car2_resp.json()["data"]["id"] in returned_ids, "Second car not found in engine filter response."
+        assert car1_resp.json()["data"]["id"] in returned_ids, "First car not found in engine filter."
+        assert car2_resp.json()["data"]["id"] in returned_ids, "Second car not found in engine filter."
     else:
         pytest.fail(f"Expected success status, got {data['status']}: {data}")
 
@@ -139,8 +133,8 @@ async def test_get_cars_by_engine_success(client):
 @pytest.mark.asyncio
 async def test_get_cars_by_engine_empty(client):
     """
-    Tests retrieval of cars filtered by engine type when no cars match.
-    Expects a response with status "error" and message "No cars found."
+    Test retrieval of cars filtered by engine type when no cars match.
+    Expects an error status with message "No cars found." and an empty data list.
     """
     engine_resp = await client.get("/cars/engine/electric")
     assert engine_resp.status_code == 200, f"Expected 200, got {engine_resp.status_code}"
@@ -150,14 +144,11 @@ async def test_get_cars_by_engine_empty(client):
     assert data["data"] == [], "Expected an empty list when no cars are found."
 
 
-# -----------------------------
-# GET /cars/transmission/{transmission_type}
-# -----------------------------
 @pytest.mark.asyncio
 async def test_get_cars_by_transmission_success(client):
     """
-    Tests retrieval of cars filtered by transmission type.
-    Expects the response to include the created cars with the specified transmission.
+    Test retrieval of cars filtered by transmission type.
+    Expects the response to include created cars with the specified transmission.
     """
     # Create two cars with 'automatic' transmission.
     car1_data = CAR_CREATE_VALID.copy()
@@ -176,19 +167,16 @@ async def test_get_cars_by_transmission_success(client):
     if data["status"] == "success":
         assert data["message"] == "Cars found.", "Unexpected message when filtering by transmission."
         returned_ids = [car["id"] for car in data["data"]]
-        assert car1_resp.json()["data"]["id"] in returned_ids, "First car not found in transmission filter response."
-        assert car2_resp.json()["data"]["id"] in returned_ids, "Second car not found in transmission filter response."
+        assert car1_resp.json()["data"]["id"] in returned_ids, "First car not found in transmission filter."
+        assert car2_resp.json()["data"]["id"] in returned_ids, "Second car not found in transmission filter."
     else:
         pytest.fail(f"Expected success status, got {data['status']}: {data}")
 
 
-# -----------------------------
-# GET /cars/
-# -----------------------------
 @pytest.mark.asyncio
 async def test_get_all_cars(client):
     """
-    Tests retrieval of all cars.
+    Test retrieval of all cars.
     Expects the response to include all created car records.
     """
     resp1 = await client.post("/cars/add", json=CAR_CREATE_VALID)
@@ -208,14 +196,11 @@ async def test_get_all_cars(client):
         pytest.fail(f"Expected success status, got {data['status']}: {data}")
 
 
-# -----------------------------
-# PATCH /cars/patch/{car_id}
-# -----------------------------
 @pytest.mark.asyncio
 async def test_update_car_success(client):
     """
-    Tests successful update of a car's details.
-    Expects a 200 status code and that the updated fields match the payload.
+    Test successful update of a car's details.
+    Expects a 200 status code and updated fields matching the payload.
     """
     create_resp = await client.post("/cars/add", json=CAR_CREATE_VALID)
     assert create_resp.status_code == 200, f"Error creating car: {create_resp.text}"
@@ -234,9 +219,8 @@ async def test_update_car_success(client):
 @pytest.mark.asyncio
 async def test_update_car_conflict_vin(client):
     """
-    Tests that updating a car's VIN to one that already exists results in a 409 Conflict.
+    Test that updating a car's VIN to one that already exists results in a 409 Conflict.
     """
-    # Create two cars.
     car1_resp = await client.post("/cars/add", json=CAR_CREATE_VALID)
     assert car1_resp.status_code == 200, f"Error creating first car: {car1_resp.text}"
     car2_resp = await client.post("/cars/add", json=CAR_CREATE_ANOTHER)
@@ -245,7 +229,6 @@ async def test_update_car_conflict_vin(client):
     car1_vin = car1_resp.json()["data"]["vin_number"]
     car2_id = car2_resp.json()["data"]["id"]
 
-    # Attempt to update second car's VIN to that of the first car.
     patch_resp = await client.patch(f"/cars/patch/{car2_id}", json={"vin_number": car1_vin})
     assert patch_resp.status_code == 409, f"Expected 409, got {patch_resp.status_code}"
     detail = patch_resp.json()["detail"]
@@ -256,25 +239,21 @@ async def test_update_car_conflict_vin(client):
 @pytest.mark.asyncio
 async def test_update_car_not_found(client):
     """
-    Tests updating a non-existent car.
-    Expects a 404 Not Found with an appropriate error message.
+    Test updating a non-existent car.
+    Expects a 404 status code with an appropriate error message.
     """
-    fake_id = 9999999
-    patch_resp = await client.patch(f"/cars/patch/{fake_id}", json=CAR_UPDATE_VALID)
+    patch_resp = await client.patch(f"/cars/patch/{NON_EXISTENT_ID}", json=CAR_UPDATE_VALID)
     assert patch_resp.status_code == 404, f"Expected 404, got {patch_resp.status_code}"
     detail = patch_resp.json()["detail"]
-    expected_detail = f"Car with id: '{fake_id}' does not exist."
+    expected_detail = f"Car with id: '{NON_EXISTENT_ID}' does not exist."
     assert detail == expected_detail, f"Unexpected detail message: {detail}"
 
 
-# -----------------------------
-# DELETE /cars/delete/{car_id}
-# -----------------------------
 @pytest.mark.asyncio
 async def test_delete_car_success(client):
     """
-    Tests successful deletion of a car.
-    Expects a 200 status code and confirmation message, and that subsequent retrieval fails.
+    Test successful deletion of a car.
+    Expects a 200 status code with confirmation message and that subsequent retrieval fails.
     """
     create_resp = await client.post("/cars/add", json=CAR_CREATE_VALID)
     assert create_resp.status_code == 200, f"Error creating car: {create_resp.text}"
@@ -286,7 +265,6 @@ async def test_delete_car_success(client):
     expected_msg = f"Car with id {car_id} deleted."
     assert expected_msg in message, f"Unexpected delete confirmation message: {message}"
 
-    # Verify that the car no longer exists.
     get_resp = await client.get(f"/cars/{car_id}")
     assert get_resp.status_code == 404, "Expected 404 after deletion."
     assert get_resp.json()["detail"] == "Car not found.", "Unexpected message when retrieving a deleted car."
@@ -295,12 +273,11 @@ async def test_delete_car_success(client):
 @pytest.mark.asyncio
 async def test_delete_car_not_found(client):
     """
-    Tests deletion of a non-existent car.
-    Expects a 404 Not Found with an appropriate error message.
+    Test deletion of a non-existent car.
+    Expects a 404 status code with an appropriate error message.
     """
-    fake_id = 123456789
-    delete_resp = await client.delete(f"/cars/delete/{fake_id}")
+    delete_resp = await client.delete(f"/cars/delete/{NON_EXISTENT_ID}")
     assert delete_resp.status_code == 404, f"Expected 404, got {delete_resp.status_code}"
     detail = delete_resp.json()["detail"]
-    expected_detail = f"No car with id: '{fake_id}' found."
+    expected_detail = f"No car with id: '{NON_EXISTENT_ID}' found."
     assert expected_detail in detail, f"Unexpected detail message: {detail}"
