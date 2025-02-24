@@ -68,3 +68,5 @@ CAR_UPDATE_VALID = {
     "color": "Black",
     "mileage": 16000
 }
+
+NON_EXISTENT_ID = 9999999  # A high number assumed to be non-existent in the test DB
