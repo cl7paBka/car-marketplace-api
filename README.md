@@ -1,7 +1,7 @@
 # 🚗 Car Marketplace API
 
 <a href="https://github.com/cl7paBka/car-marketplace-api/blob/main/README.md"><img alt="README in English" src="https://img.shields.io/badge/English-purple"></a>
-<a href="https://github.com/cl7paBka/car-marketplace-api/blob/main/readme_assets/README_ru.md"><img alt="README in English" src="https://img.shields.io/badge/Русский-purple"></a>
+<a href="https://github.com/cl7paBka/car-marketplace-api/blob/main/readme_assets/README_ru.md"><img alt="README in Russian" src="https://img.shields.io/badge/Русский-purple"></a>
 
 Welcome to **car-marketplace-api**, my personal **pet project** that showcases my growing expertise in building **RESTful API**s with modern frameworks and libraries. This service provides a robust **back-end** for managing users, car listings, and orders — making it both easy to maintain and straightforward to scale as the project evolves.
 
@@ -75,12 +75,12 @@ This interactive interface lets you test all available endpoints directly from y
 
 This project includes a comprehensive test suite that covers all endpoints positive and negative cases — to ensure full functionality and reliability. To run the tests, follow these steps:
 
-1. **Ensure the Docker containers are running:**  
+1. **Ensure the Docker containers are running.**  
    If not already running, start them with:
    ```bash
    docker-compose up --build
    ```
-2. **Open a shell in the running application container**
+2. **Open a shell in the running application container:**
    ```bash
    docker exec -it car-marketplace-app bash
    ```
@@ -102,7 +102,7 @@ This project includes a comprehensive test suite that covers all endpoints posit
   
 ---
 
-## Key Features and Endpoints
+## 💫 Key Features and Endpoints
 
 This API revolves around three primary entities, each with its own set of attributes and operations. 
 
@@ -140,10 +140,10 @@ By supporting **PATCH** requests, the API allows you to update specific fields w
 This project adopts an **onion architecture** to achieve a clear separation of concerns, where each layer encapsulates a specific part of the application. By doing so, inner layers (models, business logic) remain stable and independent of changes in outer layers (APIs, infrastructure). Below is an overview of the core patterns and structural choices that make this codebase both clean and maintainable.
 
 ### Onion Architecture Overview
-- **Domain and Models** (Innermost Layer): Defines the core structures (e.g., User, Car, Order) and business rules that remain independent of any external services or frameworks.  
-- **Repositories and Services** (Middle Layer): Encapsulate data operations and application logic, ensuring a well-defined interface between how data is stored and how it’s used.  
-- **API (Routing Layer)** (Outer Layer): Handles HTTP requests and responses, delegating business logic to services and data persistence to repositories.  
-- **Infrastructure** (Outermost Layer): Covers everything from configuration and environment management to containerization, enabling smooth deployments across different setups.
+- **Domain and Models** (`Innermost Layer`): Defines the core structures (e.g., `User, Car, Order) and business rules that remain independent of any external services or frameworks.  
+- **Repositories and Services** (`Middle Layer`): Encapsulate data operations and application logic, ensuring a well-defined interface between how data is stored and how it’s used.  
+- **API (Routing Layer)** (`Outer Layer`): Handles HTTP requests and responses, delegating business logic to services and data persistence to repositories.  
+- **Infrastructure** (`Outermost Layer`): Covers everything from configuration and environment management to containerization, enabling smooth deployments across different setups.
 
 ### Key Patterns
 
